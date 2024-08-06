@@ -2,6 +2,8 @@ import pandas as pd
 import plotly.graph_objects as go
 import statistics as stats
 import numpy as np
+import json
+from conll_df import conll_df
 
 ########
 
@@ -22,8 +24,11 @@ def is_tsv_file(file_path):
 def is_conll_file(file_path):
     return file_path.endswith(".conll")
 
+def is_json_file(file_path):
+    return file_path.endswith(".json")
+
 # Basis: Erstelle Pandas-Tabelle
-def create_table(file_path):
+def create_table_v1(file_path):
 
     if is_conll_file(file_path):
         # Definiere Spaltennamen
@@ -58,6 +63,66 @@ def create_table(file_path):
         table = pd.read_table(file_path, names=colnames, quoting=3, keep_default_na=False)
 
         return table
+
+# Alternativ: Erstelle Pandas-Tabelle aus json-Datei oder CONLL-Datei (unter Verwendung der conll-df library)
+# Vorschlag: mit create_table_v1 verschmelzen?
+def create_table_v2(file_path):
+    if is_conll_file(file_path):
+        df = conll_df(file_path, file_index=False, categories=True)
+
+        # remove multi-index (makes navigation a living hell)
+        df.reset_index(inplace=True)
+
+        # change column names from random letters to correct terminology
+        df.rename(columns={'s' : 'sentence',
+                           'i' : 'id',
+                           'w': 'token',
+                           'l': 'lemma',
+                           'x': 'upos',
+                           'p': 'xpos',
+                           'g': 'head',
+                           'f': 'deprel'}, inplace=True)
+
+        # WIP: remove rows with 'x-y' style index maybe?
+        return df
+
+    if is_json_file(file_path): # WIP
+
+        with open(file_path) as f:
+            json_data = json.loads(f.read())
+
+        colnames = ["deprel", "end_char", "feats", "head", "id", "lemma", "misc", "multi_ner", "ner", "start_char", "text", "upos", "xpos"]
+
+        df_data = []
+        sentence_counter = 0
+
+        for sentence in json_data:
+            sentence_counter += 1
+            for word in sentence:
+                word_data = []
+
+                for colname in colnames:
+
+                    try:
+                        word_data.append(word[colname])
+                    except KeyError:
+                        word_data.append(None)
+
+                word_data.append(sentence_counter)
+
+                df_data.append(word_data)
+
+        colnames.append("sentence")
+
+        df = pd.DataFrame(df_data, columns=colnames)
+
+        return df
+
+    return None
+
+
+
+        # return pd.DataFrame([data_dict])
 
 # Erstelle Tabelle ohne Satzzeichen (für Type Token Ratio)
 def create_table_only_words(table):
