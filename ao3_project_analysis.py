@@ -131,6 +131,8 @@ def create_table_only_words(table):
     only_words_table = table.query('upos != "PUNCT"')
 
     # New version, compatible with create_table_v2 dfs
+    # 'apply' method takes function (with row as first arg) as its first argument and applies it to each row
+    # lambda function takes row as arg, returns merged string of 'token' and 'upos' col values
     only_words_table["token_upos"] = only_words_table.apply(lambda row: f"{row['token'].lower()}/{row['upos']}", axis=1)
 
     only_words_table = only_words_table.reset_index(drop=True) # reset indices after removing PUNCT
