@@ -27,6 +27,9 @@ def is_conll_file(file_path):
 def is_json_file(file_path):
     return file_path.endswith(".json")
 
+def is_csv_file(file_path):
+    return file_path.endswith(".csv")
+
 # Basis: Erstelle Pandas-Tabelle
 def create_table_v1(file_path):
 
@@ -400,3 +403,39 @@ def lex_density(table):
 
 ########
 
+# Load the frequency list and create Dataframe
+def create_freq_df(frequency_list_path):
+
+    if is_csv_file(frequency_list_path):
+        freq_df = pd.read_csv(frequency_list_path)
+        return freq_df
+    
+    else: raise ValueError("The frequency list file must be a CSV file.")
+
+def analyze_complexity(table, freq_df):
+
+    # Umwandlung der Lemmata in ein Set für schnellen Zugriff
+    freq_lemmas = set(freq_df['lemma'].str.lower())
+
+    # Hinzufügen einer Spalte zur Text-Table – Anzeigen, ob jew. Lemma in Frequency List enthalten ist
+    table['in_freq_list'] = table['LEMMA'].str.lower().isin(freq_lemmas)
+
+    total_words = len(table) # alle Wörter im Text
+    known_words = table['in_freq_list'].sum() # Wörter, die auch in Frequency Liste enthalten sind
+    unknown_words = total_words - known_words # Wörter, die nicht in Frequency Liste enthalten sind
+    known_word_ratio = known_words / total_words if total_words > 0 else 0 
+
+    # Merging der Tabellen, um Ränge (in der Frequency List) für alle Wörter im Text zu erhalten
+    merged_df = pd.merge(table, freq_df[['lemma', 'rank']], left_on='LEMMA', right_on='lemma', how='left')
+
+    avg_rank = merged_df['rank'].mean()
+
+    # Ergebnisse – TODO: hier ist evtl. ein anderes Format besser, vorübergehend erstmal als Dictionary s
+    complexity_metrics = {
+        'total_words': total_words,
+        'known_words': known_words,
+        'unknown_words': unknown_words,
+        'known_word_ratio': known_word_ratio,
+        'average_rank': avg_rank
+    }
+    return complexity_metrics
