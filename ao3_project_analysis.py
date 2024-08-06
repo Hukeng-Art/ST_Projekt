@@ -113,6 +113,7 @@ def create_table_v2(file_path):
                 df_data.append(word_data)
 
         colnames.append("sentence")
+        colnames[10] = "token"
 
         df = pd.DataFrame(df_data, columns=colnames)
 
@@ -128,7 +129,11 @@ def create_table_v2(file_path):
 def create_table_only_words(table):
 
     only_words_table = table.query('upos != "PUNCT"')
-    only_words_table = only_words_table.assign(token_upos=only_words_table['token'].str.lower() + "/" + only_words_table['upos'])
+
+    # New version, compatible with create_table_v2 dfs
+    only_words_table["token_upos"] = only_words_table.apply(lambda row: f"{row['token'].lower()}/{row['upos']}", axis=1)
+
+    only_words_table = only_words_table.reset_index(drop=True) # reset indices after removing PUNCT
 
     return only_words_table
 
