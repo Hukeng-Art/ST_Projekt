@@ -10,7 +10,9 @@ path = 'tokenized_data/40561_tok.json'
 
 pd.set_option('display.max_columns', None)
 
-#df = create_table_v2(path)
+### START PROJECT ANALYSIS TEST
+
+df = create_table_v2(path)
 
 # df = create_table_only_words(df)
 
@@ -18,14 +20,22 @@ pd.set_option('display.max_columns', None)
 # type_frequency(df, plot=True)
 
 
-#df = lemma_upos_combo(df) # CURRENT DEBUG WIP
+# df = lemma_upos_combo(df)
 
-# ### USED TO CREATE MASTER TABLE, ONLY EXECUTE AGAIN TO REDO FROM SCRATCH
-# create_masterTable('cleaned_data')
-
-df = load_masterTable()
-df = masterTable_contents_by_rating(['Mature', 'Not Rated'])
+df = standardised_type_token_ratio(df) ### CURRENT DEBUG BOOKMARK
 
 print(df)
+
+### END PROJECT ANALYSIS TEST
+
+### START TABLE UTILS TEST
+
+# #USED TO CREATE MASTER TABLE, ONLY EXECUTE AGAIN TO REDO FROM SCRATCH
+# create_masterTable('cleaned_data')
+
+# df = load_masterTable()
+# df = masterTable_contents_by_rating(['Mature', 'Not Rated'])
+
+### END TABLE UTILS TEST
 
 

@@ -222,17 +222,17 @@ def lemma_upos_combo(table, plot=False):
     combo_freq.columns = ['lemma/upos combo', 'count']
     combo_freq = combo_freq.assign(rel=combo_freq['count'] / len(table))
 
-    if plot == True:
-        # Plot zur Visualisierung der 50 häufigsten Lemma/POS-Kombinationen
-        combo_freq = combo_freq.iloc[0:50]
-        fig = go.Figure(data=go.Bar(x=combo_freq['type'], y=combo_freq['count']))
-        fig.update_layout(
-            title="Verteilung der 50 häufigsten Lemma/POS-Kombinationen",
-            xaxis_title="Type",
-            yaxis_title="Absolute Häufigkeit",
-            template="ggplot2"
-        )
-        fig.show()
+    # if plot == True:
+    #     # Plot zur Visualisierung der 50 häufigsten Lemma/POS-Kombinationen
+    #     combo_freq = combo_freq.iloc[0:50]
+    #     fig = go.Figure(data=go.Bar(x=combo_freq['type'], y=combo_freq['count']))
+    #     fig.update_layout(
+    #         title="Verteilung der 50 häufigsten Lemma/POS-Kombinationen",
+    #         xaxis_title="Type",
+    #         yaxis_title="Absolute Häufigkeit",
+    #         template="ggplot2"
+    #     )
+    #     fig.show()
     
     return combo_freq
 
@@ -271,7 +271,7 @@ def standardised_type_token_ratio(table, window_size=1000):
         window_tokens = tokens[i*window_size:i*window_size + window_size]
         window_types = len(set(window_tokens))
 
-        ratio = ttr(window_types, window_tokens)
+        ratio = ttr(window_types, len(window_tokens))
         results.append(ratio)
 
     mean_result = stats.mean(results)
