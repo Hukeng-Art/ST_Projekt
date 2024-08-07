@@ -13,7 +13,7 @@ test_df = pd.DataFrame(
      'value' : [random.randint(0,32) for i in range(128)]}
 )
 
-print(test_df)
+# print(test_df)
 
 def combined_boxplot(df, x_name, y_name, hue_name):
     '''
@@ -26,6 +26,6 @@ def combined_boxplot(df, x_name, y_name, hue_name):
     matplotlib.pyplot.show()
 
 
-combined_boxplot(test_df, 'category_x', 'value', 'category_hue')
+# combined_boxplot(test_df, 'category_x', 'value', 'category_hue')
     
     
