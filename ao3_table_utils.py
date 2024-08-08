@@ -51,7 +51,7 @@ def masterTable_contents_by_rating(ratings):
     '''
 
     df = load_masterTable()
-    output = df[(df['rating'].isin(ratings))]
+    output = df[(df.rating.isin(ratings))]
 
     return output.reset_index()
 

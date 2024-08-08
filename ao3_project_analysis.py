@@ -157,29 +157,31 @@ def upos_frequency(table, abs_plot=False, rel_plot=False):
     upos_freq.columns = ['upos', 'count']
     upos_freq = upos_freq.assign(rel=upos_freq['count'] / len(table))
 
-    if abs_plot == True:
+    # if abs_plot == True:
+    #
+    #     # Bar-Plot zur Darstellung der absoluten Häufigkeit der unterschiedlichen Wortarten
+    #     fig = go.Figure(data=go.Bar(x=upos_freq['upos'], y=upos_freq['count']))
+    #     fig.update_layout(
+    #         title="Wortartenhäufigkeiten",
+    #         xaxis_title="UPOS-Tag",
+    #         yaxis_title="Absolute Häufigkeit",
+    #         template="ggplot2"
+    #     )
+    #     fig.show()
+    #
+    # if rel_plot == True:
+    #
+    #     # Bar-Plot zur Darstellung der relativen Häufigkeit der unterschiedlichen Wortarten
+    #     fig = go.Figure(data=go.Bar(x=upos_freq['upos'], y=100*upos_freq['rel']))
+    #     fig.update_layout(
+    #         title="Wortartenhäufigkeiten",
+    #         xaxis_title="UPOS-Tag",
+    #         yaxis_title="Relative Häufigkeit (in Prozent)",
+    #         template="ggplot2"
+    #     )
+    #     fig.show()
 
-        # Bar-Plot zur Darstellung der absoluten Häufigkeit der unterschiedlichen Wortarten
-        fig = go.Figure(data=go.Bar(x=upos_freq['upos'], y=upos_freq['count']))
-        fig.update_layout(
-            title="Wortartenhäufigkeiten",
-            xaxis_title="UPOS-Tag",
-            yaxis_title="Absolute Häufigkeit",
-            template="ggplot2"
-        )
-        fig.show()
-    
-    if rel_plot == True:
-
-        # Bar-Plot zur Darstellung der relativen Häufigkeit der unterschiedlichen Wortarten
-        fig = go.Figure(data=go.Bar(x=upos_freq['upos'], y=100*upos_freq['rel']))
-        fig.update_layout(
-            title="Wortartenhäufigkeiten",
-            xaxis_title="UPOS-Tag",
-            yaxis_title="Relative Häufigkeit (in Prozent)",
-            template="ggplot2"
-        )
-        fig.show()
+    return upos_freq
     
 # Type Frequency ermitteln, Häufigkeit einzelner Wörter (Types)
 def type_frequency(table, plot=False):
@@ -286,23 +288,26 @@ def vocabulary_growth(table, mode='types', plot=False):
 
     results = []
     types = set()
-    for i, token in enumerate(tokens):
-        types.add(token)
-        if mode == 'ttr':
+
+    if mode == 'ttr':
+        for i, token in enumerate(tokens):
+            types.add(token)
             results.append(ttr(len(types), i + 1))
-        else:
+    else:
+        for i, token in enumerate(tokens):
+            types.add(token)
             results.append(len(types))
 
-    if plot == True:
-
-        plot = go.Figure(go.Scatter(x = np.arange(1, len(results) + 1), y = results, mode='lines', name='Text 1'))
-        # scatterplot.add_trace(go.Scatter(x = np.arange(1, len(vc3) + 1), y = vc3, mode='lines', name='Text 1 (BoW)'))
-        plot.update_layout(
-        title="Vocabulary growth curve",
-        xaxis_title="Tokens",
-        yaxis_title="Types")
-    
-        plot.show()
+    # if plot == True:
+    #
+    #     plot = go.Figure(go.Scatter(x = np.arange(1, len(results) + 1), y = results, mode='lines', name='Text 1'))
+    #     # scatterplot.add_trace(go.Scatter(x = np.arange(1, len(vc3) + 1), y = vc3, mode='lines', name='Text 1 (BoW)'))
+    #     plot.update_layout(
+    #     title="Vocabulary growth curve",
+    #     xaxis_title="Tokens",
+    #     yaxis_title="Types")
+    #
+    #     plot.show()
     
     return results
 
@@ -330,7 +335,8 @@ def honore_h(tokens):
 # Generell lässt sich beobachten: je größer das Fenster/ länger der Text desto niedriger sind die Honore's H Werte
 def honore_h_windows(table, window_size=1000):
 
-    tokens = table['token_upos']
+    only_words_table = create_table_only_words(table)
+    tokens = only_words_table['token_upos']
 
     results = []
     for i in range(int(len(tokens) / window_size)):
@@ -346,13 +352,15 @@ def honore_h_windows(table, window_size=1000):
 # II. Säule: Satzkomplexität (Syntaktisch)
 
 # Median oder Mittelwert der Satzlängen eines Texts
-def mean_sentence_length(table, stat='median'):
-    table['sentence'] = table.id.apply(lambda x: int(x) == 1).cumsum()
+def sentence_length(table, stat='mean'):
+    # # Not needed, as table already contains sentence column - also breaks on execution
+    # table['sentence'] = table.id.apply(lambda x: int(x) == 1).cumsum()
+
     sentence_lengths = table['sentence'].value_counts()
 
     if stat == 'mean':
         return stats.mean(sentence_lengths)
-    else:
+    elif stat == 'median':
         return stats.median(sentence_lengths)
 
 # Histogramm der Satzlängen
@@ -407,27 +415,32 @@ def lex_density(table):
 def create_freq_df(frequency_list_path):
 
     if is_csv_file(frequency_list_path):
-        freq_df = pd.read_csv(frequency_list_path)
+        freq_df = pd.read_csv(frequency_list_path, sep=';')  # files use ';' as separator despite name for some reason
         return freq_df
     
-    else: raise ValueError("The frequency list file must be a CSV file.")
+    else:
+        raise ValueError("The frequency list file must be a CSV file.")
 
 def analyze_complexity(table, freq_df):
 
     # Umwandlung der Lemmata in ein Set für schnellen Zugriff
     freq_lemmas = set(freq_df['lemma'].str.lower())
 
+    # reference word list does NOT contain punctuation!
+    table = create_table_only_words(table)
+
     # Hinzufügen einer Spalte zur Text-Table – Anzeigen, ob jew. Lemma in Frequency List enthalten ist
-    table['in_freq_list'] = table['LEMMA'].str.lower().isin(freq_lemmas)
+    table['in_freq_list'] = table.apply(lambda row: row['lemma'] in freq_lemmas, axis=1)
 
     total_words = len(table) # alle Wörter im Text
-    known_words = table['in_freq_list'].sum() # Wörter, die auch in Frequency Liste enthalten sind
-    unknown_words = total_words - known_words # Wörter, die nicht in Frequency Liste enthalten sind
-    known_word_ratio = known_words / total_words if total_words > 0 else 0 
+    known_words = table['in_freq_list'].sum() # Anzahl der Wörter, die auch in Frequency Liste enthalten sind
+    unknown_words = total_words - known_words # Anzahl der Wörter, die nicht in Frequency Liste enthalten sind
+    known_word_ratio = known_words / total_words if total_words > 0 else 0
 
     # Merging der Tabellen, um Ränge (in der Frequency List) für alle Wörter im Text zu erhalten
-    merged_df = pd.merge(table, freq_df[['lemma', 'rank']], left_on='LEMMA', right_on='lemma', how='left')
+    merged_df = pd.merge(table, freq_df[['lemma', 'rank']], left_on='lemma', right_on='lemma', how='left')
 
+    # average rank of words from text that appear in ref word list
     avg_rank = merged_df['rank'].mean()
 
     # Ergebnisse – TODO: hier ist evtl. ein anderes Format besser, vorübergehend erstmal als Dictionary s
