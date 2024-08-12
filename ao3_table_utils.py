@@ -35,14 +35,25 @@ def create_masterTable(dir_path):
 
     df.to_csv(MASTER_FILENAME)
 
-def load_masterTable():
+def load_mastertable():
+    '''
+    Return PD Dataframe Object containing all metadata saved in master table (loaded from csv)
+    '''
+
     df = pd.read_csv(MASTER_FILENAME)
 
     del df["Unnamed: 0"] # inelegant and probably unstable, but whatevs
 
+    # convert string values in numeric cols to numbers
+    numeric_cols = ['words', 'comments', 'kudos', 'bookmarks', 'hits', 'standardised_ttr_1000', 'standardised_ttr_500','standardised_ttr_250']
+    for col in numeric_cols:
+        df[col] = df[col].astype(str).str.replace(',', '')
+        df[col] = pd.to_numeric(df[col])
+
     return df
 
-def masterTable_contents_by_rating(ratings):
+
+def mastertable_contents_by_rating(ratings):
     '''
     rating: LIST of STRINGS - valid elements are "Not Rated", "General Audiences", "Teen And Up Audiences", "Mature", "Explicit"
 

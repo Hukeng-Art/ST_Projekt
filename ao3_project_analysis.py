@@ -128,7 +128,7 @@ def create_table_v2(file_path):
 
         # return pd.DataFrame([data_dict])
 
-# Erstelle Tabelle ohne Satzzeichen (für Type Token Ratio)
+# Erstelle Tabelle ohne Satzzeichen (für Type Token Ratio und Referenzwortlisten-Analyse)
 def create_table_only_words(table):
 
     only_words_table = table.query('upos != "PUNCT"')
@@ -148,7 +148,7 @@ def create_table_only_words(table):
 # Erste Analyse
 
 # UPOS (Universal POS (Part of Speech)) Frequency ermitteln, also Wortartenhäufigkeit
-def upos_frequency(table, abs_plot=False, rel_plot=False):
+def upos_frequency(table):
 
     # Tabelle erstellen mit UPOS, sowie der jeweiligen absoluten und relativen Häufigkeit
     upos_freq = table['upos'].value_counts()
@@ -156,30 +156,6 @@ def upos_frequency(table, abs_plot=False, rel_plot=False):
     upos_freq = upos_freq.reset_index()
     upos_freq.columns = ['upos', 'count']
     upos_freq = upos_freq.assign(rel=upos_freq['count'] / len(table))
-
-    # if abs_plot == True:
-    #
-    #     # Bar-Plot zur Darstellung der absoluten Häufigkeit der unterschiedlichen Wortarten
-    #     fig = go.Figure(data=go.Bar(x=upos_freq['upos'], y=upos_freq['count']))
-    #     fig.update_layout(
-    #         title="Wortartenhäufigkeiten",
-    #         xaxis_title="UPOS-Tag",
-    #         yaxis_title="Absolute Häufigkeit",
-    #         template="ggplot2"
-    #     )
-    #     fig.show()
-    #
-    # if rel_plot == True:
-    #
-    #     # Bar-Plot zur Darstellung der relativen Häufigkeit der unterschiedlichen Wortarten
-    #     fig = go.Figure(data=go.Bar(x=upos_freq['upos'], y=100*upos_freq['rel']))
-    #     fig.update_layout(
-    #         title="Wortartenhäufigkeiten",
-    #         xaxis_title="UPOS-Tag",
-    #         yaxis_title="Relative Häufigkeit (in Prozent)",
-    #         template="ggplot2"
-    #     )
-    #     fig.show()
 
     return upos_freq
     
@@ -193,24 +169,6 @@ def type_frequency(table, plot=False):
     type_freq = type_freq.reset_index()
     type_freq.columns = ['type', 'count']
     type_freq = type_freq.assign(rel=type_freq['count'] / len(table))
-
-    print("Typen tags – absolute und relative Häufigkeit")
-    print(type_freq)
-    
-    # Optional: Erstelle Bar-Plot mit der absoluten Häufigkeit von Tokens
-    if plot == True:
-
-        type_freq_50 = type_freq.iloc[0:50]
-        fig = go.Figure(data=go.Bar(x=type_freq_50['type'], y=type_freq_50['count']))
-
-        fig.update_layout(
-            title="Verteilung der 50 häufigsten Wörter",
-            xaxis_title="Type",
-            yaxis_title="Absolute Häufigkeit",
-            template="ggplot2"
-        )
-
-        fig.show()
     
     return type_freq
 
