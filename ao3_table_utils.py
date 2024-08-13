@@ -7,7 +7,7 @@ MASTER_FILENAME = 'ao3_MasterTable.csv'
 
 
 # Tabellenoperationen für Metadaten, Zugriff auf Master-Tabelle
-def create_masterTable(dir_path):
+def create_mastertable(dir_path):
     '''
     dir_path: STRING - path to directory containing json files with story data
 
@@ -31,7 +31,14 @@ def create_masterTable(dir_path):
 
         df_contents.append(file_dict)
 
+        print(f"loaded {file}")
+
     df = pd.DataFrame(df_contents)
+
+    numeric_cols = ['words', 'comments', 'kudos', 'bookmarks', 'hits']
+    for col in numeric_cols:
+        df[col] = df[col].astype(str).str.replace(',', '')
+        df[col] = pd.to_numeric(df[col])
 
     df.to_csv(MASTER_FILENAME)
 
@@ -41,15 +48,7 @@ def load_mastertable():
     '''
 
     df = pd.read_csv(MASTER_FILENAME)
-
     del df["Unnamed: 0"] # inelegant and probably unstable, but whatevs
-
-    # convert string values in numeric cols to numbers
-    numeric_cols = ['words', 'comments', 'kudos', 'bookmarks', 'hits', 'standardised_ttr_1000', 'standardised_ttr_500','standardised_ttr_250']
-    for col in numeric_cols:
-        df[col] = df[col].astype(str).str.replace(',', '')
-        df[col] = pd.to_numeric(df[col])
-
     return df
 
 
@@ -61,7 +60,7 @@ def mastertable_contents_by_rating(ratings):
     NOTE: 'index' column in output table refers to index in master table
     '''
 
-    df = load_masterTable()
+    df = load_mastertable()
     output = df[(df.rating.isin(ratings))]
 
     return output.reset_index()

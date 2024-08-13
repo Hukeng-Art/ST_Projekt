@@ -235,6 +235,7 @@ def standardised_type_token_ratio(table, window_size=1000):
         results.append(ratio)
 
     mean_result = stats.mean(results)
+
     return mean_result
 
 # Vokabularwachstum

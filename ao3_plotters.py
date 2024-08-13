@@ -5,8 +5,6 @@ import matplotlib
 import seaborn as sns
 import pandas as pd
 
-from collection
-
 
 ### definte plotter stlye
 ### pretty stuff goes here
@@ -16,15 +14,23 @@ sns.set_theme(style='ticks', palette='pastel')
 ### ACTUAL PLOTTER FUNCS ###
 ############################
 
-def combined_boxplot(df, x_name, y_name, hue_name, x_label='x_label', y_label='y_label', plot_title='plot_title'):
+def combined_boxplot(df, x_names, hue_name, x_label='x_label', y_label='y_label', plot_title='plot_title'):
     '''
     turn dataframe into grouped box plot
     df : PANDAS dataframe
-    x_name : STRING - name (and PD column key) for x-value
-    y_name : STRING - name (and PD column key) for y-value, also dertermines number of groups
+    x_name : LIST of STRINGS - names (and PD column keys) for x-value, length determines number of groups
     hue_name: STRING - name (and PD column key) for value determining placement of value within subgroup
     '''
-    sns.boxplot(x=x_name, y=y_name, hue=hue_name, data=df)
+
+    # create and fill new dataframe in format suited for sns plotter function
+    plottable_df = pd.DataFrame(columns=['x_name', 'y_name', 'hue_name'])
+
+    for index, row in df.iterrows():
+        for x_name in x_names:
+            plottable_df.loc[len(plottable_df.index)] = [x_name, row[x_name], row[hue_name]]
+
+
+    sns.boxplot(x='x_name', y='y_name', hue='hue_name', data=plottable_df)
     matplotlib.pyplot.show()
 
 
