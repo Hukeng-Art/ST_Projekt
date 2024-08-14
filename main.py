@@ -77,6 +77,7 @@ test_df = pd.DataFrame(
 master_df = load_mastertable()
 
 ### BEGIN ADD INFO TO MASTER
+
 #
 # # add standardized ttr for each text to ao3_MasterTable, different window sizes
 # for value in [250, 500, 1000, 4000]:
@@ -171,14 +172,32 @@ master_df = load_mastertable()
 
 # END ADD INFO TO MASTER
 
+### PLOTTER IMPLEMENTATION
+
+boxplot_order = ['General Audiences', 'Teen And Up Audiences', 'Mature', 'Explicit', 'Not Rated']
+boxplot_colors = {
+    'General Audiences': 'limegreen',
+    'Teen And Up Audiences': 'yellow',
+    'Mature': 'orange',
+    'Explicit': 'tomato',
+    'Not Rated': 'w'
+}
 
 ttr_colnames = ['standardised_ttr_250', 'standardised_ttr_500', 'standardised_ttr_1000', 'standardised_ttr_4000']
+honore_h_colnames = ['honore_h_250', 'honore_h_500', 'honore_h_1000', 'honore_h_4000']
 
-print(master_df)
+combined_boxplot(master_df,
+                 honore_h_colnames,
+                 'rating',
+                 order=boxplot_order,
+                 palette=boxplot_colors)
 
-
-combined_boxplot(master_df, ttr_colnames, 'rating')
-
-
-
+# # simple boxplot, adjust args as needed
+# boxplot(master_df, 'rating', 'standardised_ttr_1000',
+#         order=boxplot_order,
+#         palette=boxplot_colors,
+#         x_label='Rating',
+#         y_label=None,
+#         title='Standardised TTR 1000'
+# )
 
