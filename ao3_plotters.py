@@ -18,7 +18,7 @@ sns.set_theme(style='ticks', palette='pastel')
 def boxplot(df, x_name, y_name, order=None, palette=None, x_label=None, y_label=None, title=None):
     '''
 
-    display a boxplot on the basis of passed arguments
+    display a seaborn boxplot on the basis of passed arguments
 
     :param df: PANDAS dataframe
     :param x_name: STRING - name of column to be plotted on x-axis (one box per distinct value in df)
@@ -37,7 +37,20 @@ def boxplot(df, x_name, y_name, order=None, palette=None, x_label=None, y_label=
     matplotlib.pyplot.show()
 
 
-def combined_boxplot(df, x_names, hue_name, order=None, palette=None, y_label=None, title=None, legend_title=None):
+def grouped_boxplot(df, x_names, hue_name, order=None, palette=None, y_label=None, title=None, legend_title=None):
+    '''
+
+    display a grouped boxplot (multiple box plots in one graph) on the basis of passed arguments
+
+    :param df: PANDAS dataframe
+    :param x_names: LIST of STRINGS - names of columns to be plotted on x-axis (one group per distinct value in df)
+    :param hue_name: STRING - name of column defining values making up a group
+    :param palette: DICTIONARY - keys are STRINGS that correspond to x-label values, values are STRINGS, colour denominations
+    :param x_label: STRING - label for x-axis
+    :param y_label: STRING - label for y-axis
+    :param title: STRING - label for graph
+    :return None
+    '''
 
     # create and fill new dataframe in format suited for sns plotter function
     plottable_df = pd.DataFrame(columns=['x_name', 'y_name', 'hue_name'])
@@ -47,12 +60,12 @@ def combined_boxplot(df, x_names, hue_name, order=None, palette=None, y_label=No
             plottable_df.loc[len(plottable_df.index)] = [x_name, row[x_name], row[hue_name]]
 
     plot = sns.boxplot(data=plottable_df,
-                x='x_name',
-                y='y_name',
-                hue='hue_name',
-                hue_order=order,
-                palette=palette
-                )
+                       x='x_name',
+                       y='y_name',
+                       hue='hue_name',
+                       hue_order=order,
+                       palette=palette
+                       )
     plot.set(ylabel=y_label, title=title)
     plot.legend(title=legend_title)
 
@@ -63,14 +76,15 @@ def bar_chart(df, x_name, y_name, x_label='x_label', y_label='y_label', title='t
     '''
     Display a seaborn bar chart based on values in passed data frame
 
-    df : PANDAS dataframe
-    x_name : STRING - name of column carrying x-axis information within df
-    y_name : STRING - name of column carrying y-axis information within df
-    x_label : STRING - label of x-axis
-    y_label : STRING - label of y-axis
-    title : STRING - label of plot
-    rotate_labels: INTEGER - rotate labels by degrees, for legibility if values overlap
-    limit : INTEGER - maximum number of cols
+    :param df : PANDAS dataframe
+    :param x_name : STRING - name of column carrying x-axis information within df
+    :param y_name : STRING - name of column carrying y-axis information within df
+    :param x_label : STRING - label of x-axis
+    :param y_label : STRING - label of y-axis
+    :param title : STRING - label of plot
+    :param rotate_xlabels: INTEGER - rotate labels by degrees, for legibility if values overlap
+    :param limit : INTEGER - maximum number of cols
+    :return None
     '''
 
     # remove tail of dataframe
@@ -89,16 +103,18 @@ def bar_chart(df, x_name, y_name, x_label='x_label', y_label='y_label', title='t
 
     plt.show()
 
+
 def scatter_plot(df, x_name, y_name, x_label='x_label', y_label='y_label', title='title'):
     '''
-    display a bi-axial (no hue) scatter plot based on values passed dataframe
+    display a bi-axial (no hue) scatter plot based on values in passed dataframe
 
-    df : PANDAS dataframe
-    x_name : STRING - name of column carrying x-axis information within df
-    y_name : STRING - name of column carrying y-axis information within df
-    x_label : STRING - label of x-axis
-    y_label : STRING - label of y-axis
-    title : STRING - label of plot
+    :param df : PANDAS dataframe
+    :param x_name : STRING - name of column carrying x-axis information within df
+    :param y_name : STRING - name of column carrying y-axis information within df
+    :param x_label : STRING - label of x-axis
+    :param y_label : STRING - label of y-axis
+    :param title : STRING - label of plot
+    :return None
     '''
 
     # create plot
@@ -112,7 +128,34 @@ def scatter_plot(df, x_name, y_name, x_label='x_label', y_label='y_label', title
     plt.show()
     pass
 
-def scatter_plot_grid(df):
-    pass
+
+def scatter_plot_grid(df, x_names, y_names):
+    '''
+    display an x-by-y grid of scatterplots, each comparing two numeric values from the passed dataframe
+
+    :param df : PANDAS dataframe
+    :param x_names : LIST of STRINGS - names of columns carrying x-axis information within df, columns in output
+    :param y_names : LIST of STRINGS - names of columns carrying y-axis information within df, rows in output
+    :return None
+    '''
+
+    # create grid as container for multiple plots
+    fig, axs = plt.subplots(ncols=len(x_names), nrows=len(y_names))
+
+    # create distinct scatterplots for each value pair and add to grid
+    for x, x_name in enumerate(x_names):
+        for y, y_name in enumerate(y_names):
+            # axes are apparently transposed in grid for whatever reason
+            subchart = sns.scatterplot(data=df, x=x_name, y=y_name, ax=axs[y][x])
+
+            if x != 0:
+                subchart.set_ylabel(None)
+
+            if y == 0:
+                subchart.set_title(x_name)
+
+            subchart.set_xlabel(None)
+
+    plt.show()
     
     

@@ -9,10 +9,11 @@ MASTER_FILENAME = 'ao3_MasterTable.csv'
 # Tabellenoperationen für Metadaten, Zugriff auf Master-Tabelle
 def create_mastertable(dir_path):
     '''
-    dir_path: STRING - path to directory containing json files with story data
-
     Create a pandas dataframe based on data in a given directory
     Save dataframe as MASTER_FILENAME
+
+    :param dir_path : STRING - path to directory containing json files with story data
+    :return None
     '''
 
     if not os.path.isdir(dir_path):
@@ -44,7 +45,7 @@ def create_mastertable(dir_path):
 
 def load_mastertable():
     '''
-    Return PD Dataframe Object containing all metadata saved in master table (loaded from csv)
+    :return PD Dataframe Object containing all metadata saved in master table (loaded from csv)
     '''
 
     df = pd.read_csv(MASTER_FILENAME)
@@ -54,10 +55,12 @@ def load_mastertable():
 
 def mastertable_contents_by_rating(ratings):
     '''
-    rating: LIST of STRINGS - valid elements are "Not Rated", "General Audiences", "Teen And Up Audiences", "Mature", "Explicit"
-
     Return table only containing data for stories with the respective ratings
     NOTE: 'index' column in output table refers to index in master table
+
+    :param ratings : LIST of STRINGS - valid elements are "Not Rated", "General Audiences", "Teen And Up Audiences", "Mature", "Explicit"
+    :return PD only containing data for stories with the respective ratings
+
     '''
 
     df = load_mastertable()

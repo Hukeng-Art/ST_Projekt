@@ -50,11 +50,11 @@ pd.set_option('display.max_columns', None)
 ### START PLOTTERS TEST
 
 
-test_df = pd.DataFrame(
-    {'category_x' : [random.randint(1,4) for i in range(128)],
-     'category_hue' : [random.randint(1,5) for i in range(128)],
-     'value' : [random.randint(0,32) for i in range(128)]}
-)
+# test_df = pd.DataFrame(
+#     {'category_x' : [random.randint(1,4) for i in range(128)],
+#      'category_hue' : [random.randint(1,5) for i in range(128)],
+#      'value' : [random.randint(0,32) for i in range(128)]}
+# )
 
 # master_df = load_mastertable()
 # print(master_df)
@@ -170,12 +170,12 @@ master_df = load_mastertable()
 #
 # master_df.to_csv(MASTER_FILENAME)
 
-# END ADD INFO TO MASTER
+### END ADD INFO TO MASTER
 
 ### PLOTTER IMPLEMENTATION
 
-boxplot_order = ['General Audiences', 'Teen And Up Audiences', 'Mature', 'Explicit', 'Not Rated']
-boxplot_colors = {
+ratings_order = ['General Audiences', 'Teen And Up Audiences', 'Mature', 'Explicit', 'Not Rated']
+ratings_colors = {
     'General Audiences': 'limegreen',
     'Teen And Up Audiences': 'yellow',
     'Mature': 'orange',
@@ -183,21 +183,31 @@ boxplot_colors = {
     'Not Rated': 'w'
 }
 
-ttr_colnames = ['standardised_ttr_250', 'standardised_ttr_500', 'standardised_ttr_1000', 'standardised_ttr_4000']
-honore_h_colnames = ['honore_h_250', 'honore_h_500', 'honore_h_1000', 'honore_h_4000']
+ttr_names = ['standardised_ttr_250', 'standardised_ttr_500', 'standardised_ttr_1000', 'standardised_ttr_4000']
+honore_h_names = ['honore_h_250', 'honore_h_500', 'honore_h_1000', 'honore_h_4000']
+sentence_len_names = ['sentence_length_mean', 'sentence_length_median']
+lexical_complexity_names = ['lexical_density', 'known_word_ratio']
 
-combined_boxplot(master_df,
-                 honore_h_colnames,
-                 'rating',
-                 order=boxplot_order,
-                 palette=boxplot_colors)
+misc_names = ['words', 'kudos', 'comments', 'bookmarks']
+
+# grouped boxplot, adjust args as needed
+grouped_boxplot(master_df,
+                misc_names,
+                'rating',
+                order=ratings_order,
+                palette=ratings_colors)
 
 # # simple boxplot, adjust args as needed
 # boxplot(master_df, 'rating', 'standardised_ttr_1000',
-#         order=boxplot_order,
-#         palette=boxplot_colors,
+#         order=ratings_order,
+#         palette=ratings_colors,
 #         x_label='Rating',
 #         y_label=None,
 #         title='Standardised TTR 1000'
 # )
+
+# combined scatterplot, adjust args as needed
+# scatter_plot_grid(mastertable_contents_by_rating(['Explicit']), ttr_names, honore_h_names)
+
+
 
