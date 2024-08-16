@@ -8,14 +8,17 @@ import pandas as pd
 
 ### definte plotter stlye
 ### pretty stuff goes here
-sns.set_theme(style='ticks', palette='pastel')
+sns.set_theme(style='ticks')
+
+plt.figure(figsize=(16, 9))
+
 
 ############################
 ### ACTUAL PLOTTER FUNCS ###
 ############################
 
 
-def boxplot(df, x_name, y_name, order=None, palette=None, x_label=None, y_label=None, title=None):
+def boxplot(df, x_name, y_name, order=None, palette=None, x_label=None, y_label=None, title=None, rotate_xlabels=0, xlabels_visible=True):
     '''
 
     display a seaborn boxplot on the basis of passed arguments
@@ -28,16 +31,26 @@ def boxplot(df, x_name, y_name, order=None, palette=None, x_label=None, y_label=
     :param x_label: STRING - label for x-axis
     :param y_label: STRING - label for y-axis
     :param title: STRING - label for graph
+    :param rotate_xlabels: INT - specify whether x_labels should be rotated and by how many degrees
+    :param xlabels_visible: BOOLEAN - specify whether x_labels should be visible
     :return: None
     '''
 
     plot = sns.boxplot(data=df, x=x_name, y=y_name, order=order, palette=palette)
     plot.set(xlabel=x_label, ylabel=y_label, title=title)
+    
+    # rotate x-axis labels to prevent overlap
+    if rotate_xlabels != 0:
+        plot.set_xticklabels(plot.get_xticklabels(), rotation=rotate_xlabels, ha="right")
+
+    # remove x-axis labels if desired
+    if not xlabels_visible:
+        plot.set(xticklabels=[])
 
     matplotlib.pyplot.show()
 
 
-def grouped_boxplot(df, x_names, hue_name, order=None, palette=None, y_label=None, title=None, legend_title=None):
+def grouped_boxplot(df, x_names, hue_name, order=None, palette=None, y_label=None, x_label=None, title=None, legend_title=None, xlabels_visible=True):
     '''
 
     display a grouped boxplot (multiple box plots in one graph) on the basis of passed arguments
@@ -45,10 +58,13 @@ def grouped_boxplot(df, x_names, hue_name, order=None, palette=None, y_label=Non
     :param df: PANDAS dataframe
     :param x_names: LIST of STRINGS - names of columns to be plotted on x-axis (one group per distinct value in df)
     :param hue_name: STRING - name of column defining values making up a group
+    :param order: LIST of STRINGS - order in which hue values should be grouped
     :param palette: DICTIONARY - keys are STRINGS that correspond to x-label values, values are STRINGS, colour denominations
     :param x_label: STRING - label for x-axis
     :param y_label: STRING - label for y-axis
     :param title: STRING - label for graph
+    :param legend_title: STRING - label for legend
+    :param xlabels_visible: BOOLEAN - specify whether xlabels should be visible
     :return None
     '''
 
@@ -66,15 +82,19 @@ def grouped_boxplot(df, x_names, hue_name, order=None, palette=None, y_label=Non
                        hue_order=order,
                        palette=palette
                        )
-    plot.set(ylabel=y_label, title=title)
+    plot.set(ylabel=y_label, xlabel=x_label, title=title)
     plot.legend(title=legend_title)
+
+    # remove x-axis labels if desired
+    if not xlabels_visible:
+        plot.set(xticklabels=[])
 
     matplotlib.pyplot.show()
 
 
-def bar_chart(df, x_name, y_name, x_label='x_label', y_label='y_label', title='title', rotate_xlabels=0, limit=50):
+def bar_plot(df, x_name, y_name, x_label='x_label', y_label='y_label', title='title', rotate_xlabels=0, limit=50):
     '''
-    Display a seaborn bar chart based on values in passed data frame
+    Display a seaborn bar plot based on values in passed data frame
 
     :param df : PANDAS dataframe
     :param x_name : STRING - name of column carrying x-axis information within df
@@ -91,15 +111,15 @@ def bar_chart(df, x_name, y_name, x_label='x_label', y_label='y_label', title='t
     truncated_df = df.iloc[0:limit]
 
     # create plot
-    chart = sns.barplot(data=truncated_df, x=x_name, y=y_name)
+    plot = sns.barplot(data=truncated_df, x=x_name, y=y_name)
 
     # set labels
-    chart.set_title(title)
-    chart.set_xlabel(x_label)
-    chart.set_ylabel(y_label)
+    plot.set_title(title)
+    plot.set_xlabel(x_label)
+    plot.set_ylabel(y_label)
 
     # rotate x-axis labels to prevent overlap
-    chart.set_xticklabels(chart.get_xticklabels(), rotation=rotate_xlabels, ha="right")
+    plot.set_xticklabels(plot.get_xticklabels(), rotation=rotate_xlabels, ha="right")
 
     plt.show()
 
@@ -118,12 +138,12 @@ def scatter_plot(df, x_name, y_name, x_label='x_label', y_label='y_label', title
     '''
 
     # create plot
-    chart = sns.scatterplot(data=df, x=x_name, y=y_name)
+    plot = sns.scatterplot(data=df, x=x_name, y=y_name)
 
     # set labels
-    chart.set_title(title)
-    chart.set_xlabel(x_label)
-    chart.set_ylabel(y_label)
+    plot.set_title(title)
+    plot.set_xlabel(x_label)
+    plot.set_ylabel(y_label)
 
     plt.show()
     pass
@@ -146,16 +166,32 @@ def scatter_plot_grid(df, x_names, y_names):
     for x, x_name in enumerate(x_names):
         for y, y_name in enumerate(y_names):
             # axes are apparently transposed in grid for whatever reason
-            subchart = sns.scatterplot(data=df, x=x_name, y=y_name, ax=axs[y][x])
+            subplot = sns.scatterplot(data=df, x=x_name, y=y_name, ax=axs[y][x])
 
             if x != 0:
-                subchart.set_ylabel(None)
+                subplot.set_ylabel(None)
 
             if y == 0:
-                subchart.set_title(x_name)
+                subplot.set_title(x_name)
 
-            subchart.set_xlabel(None)
+            subplot.set_xlabel(None)
 
     plt.show()
-    
+
+
+def heatmap(correlation_matrix):
+    '''
+    visualize correlation matrix
+
+    :param correlation_matrix: PANDAS dataframe of correlation values, ideally created with ao3_table_utils.correlation_matrix()
+    :return: None
+    '''
+
+    sns.heatmap(correlation_matrix, annot=True)
+
+    plt.show()
+
+
+
+
     

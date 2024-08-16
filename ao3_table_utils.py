@@ -69,5 +69,17 @@ def mastertable_contents_by_rating(ratings):
     return output.reset_index()
 
 
+def correlation_matrix(df, names_list):
+    '''
+    compute matrix of correlation coefficients for a number of numeric value columns in passed dataframe
+
+    :param df: PANDAS DATAFRAME containing numeric columns
+    :param names_list: LIST of STRINGS list of column names in df that should be checked for correlation
+    :return: PANDAS DataFrame
+    '''
+
+    vals_df = df[names_list]
+    return vals_df.corr()
+
 
 

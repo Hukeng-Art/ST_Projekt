@@ -151,7 +151,7 @@ master_df = load_mastertable()
 # print("lexical density added")
 #
 # # add lexical density
-# master_df["complexity_stats"] = master_df.apply(
+# master_df["complexity_metrics"] = master_df.apply(
 #         lambda row: analyze_complexity(
 #             create_table_v2(f"tokenized_data/{row['id']}_tok.json"),
 #             create_freq_df(FREQ_LIST_PATH)
@@ -164,9 +164,9 @@ master_df = load_mastertable()
 # master_df.to_csv(MASTER_FILENAME)
 #
 # # add complexity known word ratio as distinct col
-# master_df['known_word_ratio'] = master_df.apply(lambda row: row['complexity_stats']["known_word_ratio"], axis=1)
+# master_df['unknown_word_ratio'] = master_df.apply(lambda row: 1 - row['complexity_metrics']["known_word_ratio"], axis=1)
 #
-# print('Added known word ratio as distinct stat')
+# print('Added unknown word ratio as distinct stat')
 #
 # master_df.to_csv(MASTER_FILENAME)
 
@@ -186,28 +186,39 @@ ratings_colors = {
 ttr_names = ['standardised_ttr_250', 'standardised_ttr_500', 'standardised_ttr_1000', 'standardised_ttr_4000']
 honore_h_names = ['honore_h_250', 'honore_h_500', 'honore_h_1000', 'honore_h_4000']
 sentence_len_names = ['sentence_length_mean', 'sentence_length_median']
-lexical_complexity_names = ['lexical_density', 'known_word_ratio']
+lexical_complexity_names = ['lexical_density', 'unknown_word_ratio']
 
 misc_names = ['words', 'kudos', 'comments', 'bookmarks']
 
+all_names = ttr_names + honore_h_names + sentence_len_names + lexical_complexity_names
+
+corr_df = correlation_matrix(master_df, all_names)
+heatmap(corr_df)
+
+print(corr_df)
+
+
 # grouped boxplot, adjust args as needed
-grouped_boxplot(master_df,
-                misc_names,
-                'rating',
-                order=ratings_order,
-                palette=ratings_colors)
+# grouped_boxplot(master_df,
+#                 sentence_len_names,
+#                 'rating',
+#                 order=ratings_order,
+#                 title='Metriken zur Satzlänge',
+#                 palette=ratings_colors)
 
 # # simple boxplot, adjust args as needed
-# boxplot(master_df, 'rating', 'standardised_ttr_1000',
+# boxplot(master_df, 'rating', 'unknown_word_ratio',
 #         order=ratings_order,
 #         palette=ratings_colors,
-#         x_label='Rating',
-#         y_label=None,
-#         title='Standardised TTR 1000'
+#         title='Anteil Unbekannter Wörter (Referenzwortliste)',
+#         xlabels_visible=False,
+#         rotate_xlabels=90
 # )
 
 # combined scatterplot, adjust args as needed
 # scatter_plot_grid(mastertable_contents_by_rating(['Explicit']), ttr_names, honore_h_names)
+
+# heatmap of correlations between all numeric values
 
 
 
